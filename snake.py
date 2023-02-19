@@ -25,10 +25,8 @@ class Snake:
         self.bodySize = DEFAULT_SIZE
         self.coordinates = []
         self.squares = []
-        
         for i in range(0, DEFAULT_SIZE):
             self.coordinates.append([0, 0])
-
         for x, y in self.coordinates:
             square = canvas.create_rectangle(x,y, x + SPACE_SIZE, y + SPACE_SIZE, fill = SNAKE_COLOR , tag = "snake")
             self.squares.append(square)
@@ -39,8 +37,6 @@ class Food :
     def __init__(self) :
         x = random.randint(0,(GAME_WIDTH / SPACE_SIZE)-1) * SPACE_SIZE
         y = random.randint(0,(GAME_HEIGHT / SPACE_SIZE)-1) * SPACE_SIZE
-
-
         self.coordinates = [x,y] 
 
         canvas.create_oval(x,y, x + SPACE_SIZE, y + SPACE_SIZE, fill = FOOD_COLOR, tag = "food")
@@ -49,7 +45,6 @@ def next_turn(snake, food):
 
     if state == "running": 
         x, y  = snake.coordinates[0]
-
         if direction == "up":
             y -= SPACE_SIZE
         elif direction == "down":
@@ -148,13 +143,6 @@ def menu_selector(item):
     pass
 
 
-def startGame():
-    
-    state = "running"
-    food = Food()
-    snake = Snake()
-    next_turn(snake, food)
-    print(state)
 
 
 
@@ -163,13 +151,11 @@ def startGame():
 window = Tk()
 window.title("Snake")
 window.resizable(False, False)
-
 score = 0
 direction = "down"
 cursor_pos = 0 
 
 canvas = Canvas(window, bg=MENU_BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
-
 
 canvas.pack()
 window.update()
@@ -188,24 +174,24 @@ window.update()
 #     window.bind("<Return>", lambda event: startGame())
    
 
+
+
+
+canvas.delete(ALL)
+label = Label(window, text="Score : {}".format(score), font=("consolas", 40))
+label.pack()
+window.bind("<Left>", lambda event: change_direction("left"))
+window.bind("<Right>", lambda event: change_direction("right"))
+window.bind("<Up>", lambda event: change_direction("up"))
+window.bind("<Down>", lambda event: change_direction("down"))
     
 
-if state == "running" :    
-    canvas.delete(ALL)
-    label = Label(window, text="Score : {}".format(score), font=("consolas", 40))
-    label.pack()
-    window.bind("<Left>", lambda event: change_direction("left"))
-    window.bind("<Right>", lambda event: change_direction("right"))
-    window.bind("<Up>", lambda event: change_direction("up"))
-    window.bind("<Down>", lambda event: change_direction("down"))
-    
 
-elif state == "menu" :
-    canvas.delete(ALL)
-    # canvas.create_rectangle(10, 10, BUTTON_WIDTH , BUTTON_HEIGHT, fill="#F5D0A9", tags="menuStart")
-    # canvas.create_text(5+BUTTON_WIDTH/2, 5+BUTTON_HEIGHT/2, font=10 ,text = "START")
+canvas.delete(ALL)
+# canvas.create_rectangle(10, 10, BUTTON_WIDTH , BUTTON_HEIGHT, fill="#F5D0A9", tags="menuStart")
+# canvas.create_text(5+BUTTON_WIDTH/2, 5+BUTTON_HEIGHT/2, font=10 ,text = "START")
 
-    window.bind("<Return>", lambda event: startGame())
+
     
     
 
