@@ -7,11 +7,16 @@ GAME_WIDTH = 1400
 GAME_HEIGHT = 800
 BACKGROUND_COLOR = "#000000"
 DEFAULT_SIZE = 3 
-SPEED = 50
+GAME_SPEED = 75
+MENU_SPEED = 200
 SPACE_SIZE = 50 
 SNAKE_COLOR = "#00FF00"
 FOOD_COLOR = "#FF0000"
 BACKGROUND_COLOR = "#000000"
+BUTTON_WIDTH = 100
+BUTTON_HEIGHT = 40
+MENU_BACKGROUND_COLOR = "white"
+state = "menu"
 
 class Snake:
 
@@ -42,49 +47,60 @@ class Food :
 
 def next_turn(snake, food):
 
-    x, y  = snake.coordinates[0]
+    if state == "running": 
+        x, y  = snake.coordinates[0]
 
-    if direction == "up":
-        y -= SPACE_SIZE
-    elif direction == "down":
-        y += SPACE_SIZE
-    elif direction == "left":
-        x -= SPACE_SIZE
-    elif direction == "right":
-        x += SPACE_SIZE
+        if direction == "up":
+            y -= SPACE_SIZE
+        elif direction == "down":
+            y += SPACE_SIZE
+        elif direction == "left":
+            x -= SPACE_SIZE
+        elif direction == "right":
+            x += SPACE_SIZE
 
 
 
-    snake.coordinates.insert(0, (x,y))
+        snake.coordinates.insert(0, (x,y))
 
-    square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR, tags="snake")
+        square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR, tags="snake")
 
-    snake.squares.insert(0, square)
+        snake.squares.insert(0, square)
 
-    if x == food.coordinates[0] and y == food.coordinates[1]:
+        if x == food.coordinates[0] and y == food.coordinates[1]:
 
-        global score
+            global score
 
-        score += 1  
+            score += 1  
 
-        label.config(text = "Score:{}".format(score))
+            label.config(text = "Score:{}".format(score))
 
-        canvas.delete("food")
+            canvas.delete("food")
 
-        food = Food()
+            food = Food()
 
-    else :
+        else :
 
-        del snake.coordinates[-1]
+            del snake.coordinates[-1]
 
-        canvas.delete(snake.squares[-1])
+            canvas.delete(snake.squares[-1])
+            
+            del snake.squares[-1]
+
+        if check_collisions(snake):
+            game_over()
+        else:
+            
+            window.after(GAME_SPEED, next_turn, snake, food)
+
+    # elif state == "menu": 
+    #     if direction == "up" and cursor_pos < 0:
+    #         cursor_pos -= 1 
+    #     elif direction == "down" and cursor_pos < 0:
+    #         cursor_pos += 1 
         
-        del snake.squares[-1]
-
-    if check_collisions(snake):
-        game_over()
-    else:
-        window.after(SPEED, next_turn, snake, food)
+        
+            
 
 
 
@@ -92,6 +108,7 @@ def change_direction(newDirection):
 
     global direction
 
+    
     if newDirection == "left" and direction!="right":
         direction=newDirection
     elif newDirection == "right" and direction!="left":
@@ -127,7 +144,17 @@ def game_over():
     canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2, font=("consolas", 70), text="GAME OVER", fill="red", tag="gameover")
 
 
+def menu_selector(item):
+    pass
 
+
+def startGame():
+    
+    state = "running"
+    food = Food()
+    snake = Snake()
+    next_turn(snake, food)
+    print(state)
 
 
 
@@ -139,28 +166,51 @@ window.resizable(False, False)
 
 score = 0
 direction = "down"
+cursor_pos = 0 
 
-label = Label(window, text="Score : {}".format(score), font=("consolas", 40))
-label.pack()
+canvas = Canvas(window, bg=MENU_BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
 
 
-canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
 canvas.pack()
-
-
 window.update()
 
 
-# Bindings.
-window.bind("<Left>", lambda event: change_direction("left"))
-window.bind("<Right>", lambda event: change_direction("right"))
-window.bind("<Up>", lambda event: change_direction("up"))
-window.bind("<Down>", lambda event: change_direction("down"))
+# if state == "menu" :   
+#     print("wwaaa")
+#     canvas.delete(ALL)
+#     canvas.create_rectangle(10, 10, BUTTON_WIDTH , BUTTON_HEIGHT, fill="#F5D0A9", tags="menuStart")
+#     canvas.create_text(5+BUTTON_WIDTH/2, 5+BUTTON_HEIGHT/2, font=10 ,text = "START")
+    
+
+#     if cursor_pos == 0 : 
+#         canvas.itemconfigure("menuStart", outline="black", width = 5)  
+
+#     window.bind("<Return>", lambda event: startGame())
+   
+
+    
+
+if state == "running" :    
+    canvas.delete(ALL)
+    label = Label(window, text="Score : {}".format(score), font=("consolas", 40))
+    label.pack()
+    window.bind("<Left>", lambda event: change_direction("left"))
+    window.bind("<Right>", lambda event: change_direction("right"))
+    window.bind("<Up>", lambda event: change_direction("up"))
+    window.bind("<Down>", lambda event: change_direction("down"))
+    
+
+elif state == "menu" :
+    canvas.delete(ALL)
+    # canvas.create_rectangle(10, 10, BUTTON_WIDTH , BUTTON_HEIGHT, fill="#F5D0A9", tags="menuStart")
+    # canvas.create_text(5+BUTTON_WIDTH/2, 5+BUTTON_HEIGHT/2, font=10 ,text = "START")
+
+    window.bind("<Return>", lambda event: startGame())
+    
+    
 
 
-food = Food()
-snake = Snake()
 
-next_turn(snake, food)
+
 
 window.mainloop()
